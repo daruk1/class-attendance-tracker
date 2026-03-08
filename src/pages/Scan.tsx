@@ -82,6 +82,28 @@ const Scan = () => {
     }
   }, []);
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const result = await Html5Qrcode.scanFile(file, true);
+      lastScannedRef.current = "";
+      cooldownRef.current = false;
+      await handleScan(result);
+    } catch {
+      setLastResult({
+        name: "Unknown",
+        studentId: "",
+        status: "error",
+        message: "No QR code found in the uploaded image.",
+      });
+      toast.error("No QR code found in the image");
+    }
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
