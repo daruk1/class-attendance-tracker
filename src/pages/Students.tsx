@@ -60,7 +60,12 @@ const Students = () => {
                   studentName={student.name}
                   studentId={student.student_id}
                 />
-                <p className="text-center text-sm text-muted-foreground mt-1">{student.class_name}</p>
+                <p className="text-center text-sm text-muted-foreground mt-1">
+                  {student.class_name}
+                  {student.grade && student.subject && (
+                    <span className="block text-xs">Grade {student.grade} • {student.subject}</span>
+                  )}
+                </p>
                 <button
                   onClick={() => handleDelete(student.id, student.name)}
                   className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-md bg-destructive/10 text-destructive hover:bg-destructive/20"

@@ -3,9 +3,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+const SUBJECTS = ["English", "Science", "ICT"] as const;
+const GRADES = [6, 7, 8, 9, 10, 11] as const;
 
 interface AddStudentDialogProps {
   onStudentAdded: () => void;
@@ -15,33 +19,38 @@ const AddStudentDialog = ({ onStudentAdded }: AddStudentDialogProps) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [studentId, setStudentId] = useState("");
-  const [className, setClassName] = useState("");
+  const [grade, setGrade] = useState("");
+  const [subject, setSubject] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !studentId.trim() || !className.trim()) {
+    if (!name.trim() || !studentId.trim() || !grade || !subject) {
       toast.error("Please fill in all fields");
       return;
     }
 
     setLoading(true);
+    const className = `Grade ${grade} - ${subject}`;
     const qrCode = `STU-${studentId}-${Date.now()}`;
 
     const { error } = await supabase.from("students").insert({
       name: name.trim(),
       student_id: studentId.trim(),
-      class_name: className.trim(),
+      class_name: className,
+      grade: parseInt(grade),
+      subject,
       qr_code: qrCode,
-    });
+    } as any);
 
     if (error) {
       toast.error(error.message.includes("duplicate") ? "Student ID already exists" : "Failed to add student");
     } else {
-      toast.success(`${name} added successfully!`);
+      toast.success(`${name} added to Grade ${grade} - ${subject}!`);
       setName("");
       setStudentId("");
-      setClassName("");
+      setGrade("");
+      setSubject("");
       setOpen(false);
       onStudentAdded();
     }
@@ -70,8 +79,30 @@ const AddStudentDialog = ({ onStudentAdded }: AddStudentDialogProps) => {
             <Input id="studentId" value={studentId} onChange={(e) => setStudentId(e.target.value)} placeholder="STU001" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="className">Class</Label>
-            <Input id="className" value={className} onChange={(e) => setClassName(e.target.value)} placeholder="Class 10A" />
+            <Label>Grade</Label>
+            <Select value={grade} onValueChange={setGrade}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select grade" />
+              </SelectTrigger>
+              <SelectContent>
+                {GRADES.map((g) => (
+                  <SelectItem key={g} value={g.toString()}>Grade {g}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>Subject</Label>
+            <Select value={subject} onValueChange={setSubject}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select subject" />
+              </SelectTrigger>
+              <SelectContent>
+                {SUBJECTS.map((s) => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Adding..." : "Add Student"}
