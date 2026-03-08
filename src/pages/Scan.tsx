@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import QrScanner from "@/components/QrScanner";
-import { ArrowLeft, CheckCircle2, ScanLine, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ScanLine, XCircle, Upload } from "lucide-react";
 import { toast } from "sonner";
+import { Html5Qrcode } from "html5-qrcode";
 
 interface ScanResult {
   name: string;
