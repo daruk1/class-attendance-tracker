@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import AttendanceTable from "@/components/AttendanceTable";
-import { ScanLine, Users, CheckCircle2, XCircle, QrCode } from "lucide-react";
+import { ScanLine, Users, CheckCircle2, XCircle } from "lucide-react";
+import nenasaLogo from "@/assets/nenasa-logo.jpeg";
 
 const Dashboard = () => {
   const [records, setRecords] = useState<any[]>([]);
@@ -63,9 +64,12 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-display font-bold text-foreground">Attendance Tracker</h1>
-            <p className="text-sm text-muted-foreground">{today}</p>
+          <div className="flex items-center gap-3">
+            <img src={nenasaLogo} alt="Nenasa Logo" className="h-12 w-auto rounded" />
+            <div>
+              <h1 className="text-2xl font-display font-bold text-foreground">Nenasa Education Database</h1>
+              <p className="text-sm text-muted-foreground">{today}</p>
+            </div>
           </div>
           <div className="flex gap-2">
             <Link to="/students">
@@ -122,6 +126,10 @@ const Dashboard = () => {
           <AttendanceTable records={records} />
         </div>
       </main>
+
+      <footer className="border-t bg-card py-4 text-center">
+        <p className="text-sm text-muted-foreground">Developed by <span className="font-semibold text-foreground">Daruka</span></p>
+      </footer>
     </div>
   );
 };
