@@ -36,14 +36,18 @@ const AddStudentDialog = ({ onStudentAdded }: AddStudentDialogProps) => {
     const className = `Grade ${grade} - ${subject}`;
     const qrCode = `STU-${studentId}-${Date.now()}`;
 
-    const { error } = await supabase.from("students").insert({
+    const currentMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
+    const monthlyQrCode = `STU-${studentId.trim()}-${currentMonth}-${Date.now()}`;
+
+    const { data: newStudent, error } = await supabase.from("students").insert({
       name: name.trim(),
       student_id: studentId.trim(),
+      email: email.trim() || null,
       class_name: className,
       grade: parseInt(grade),
       subject,
-      qr_code: qrCode,
-    } as any);
+      qr_code: monthlyQrCode,
+    } as any).select().single();
 
     if (error) {
       toast.error(error.message.includes("duplicate") ? "Student ID already exists" : "Failed to add student");
