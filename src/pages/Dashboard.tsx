@@ -64,9 +64,12 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-display font-bold text-foreground">Attendance Tracker</h1>
-            <p className="text-sm text-muted-foreground">{today}</p>
+          <div className="flex items-center gap-3">
+            <img src={nenasaLogo} alt="Nenasa Logo" className="h-12 w-auto rounded" />
+            <div>
+              <h1 className="text-2xl font-display font-bold text-foreground">Nenasa Education Database</h1>
+              <p className="text-sm text-muted-foreground">{today}</p>
+            </div>
           </div>
           <div className="flex gap-2">
             <Link to="/students">
