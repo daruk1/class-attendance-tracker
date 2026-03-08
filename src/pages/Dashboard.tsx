@@ -1,10 +1,14 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
+import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import AttendanceTable from "@/components/AttendanceTable";
 import SubjectStats from "@/components/SubjectStats";
-import { ScanLine, Users, CheckCircle2, XCircle, BookOpen, CreditCard } from "lucide-react";
+import { ScanLine, Users, CheckCircle2, XCircle, BookOpen, CreditCard, CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import nenasaLogo from "@/assets/nenasa-logo.jpeg";
 
 const Dashboard = () => {
