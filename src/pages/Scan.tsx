@@ -61,6 +61,7 @@ const Scan = () => {
       setLastResult({
         name: student.name,
         studentId: student.student_id,
+        className: student.class_name,
         status: "duplicate",
         message: "Already marked present today",
       });
@@ -69,6 +70,7 @@ const Scan = () => {
       setLastResult({
         name: student.name,
         studentId: student.student_id,
+        className: student.class_name,
         status: "error",
         message: "Failed to record attendance",
       });
@@ -77,6 +79,7 @@ const Scan = () => {
       setLastResult({
         name: student.name,
         studentId: student.student_id,
+        className: student.class_name,
         status: "success",
         message: "Attendance recorded! ✓",
       });
