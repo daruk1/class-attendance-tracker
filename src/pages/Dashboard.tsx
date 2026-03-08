@@ -67,7 +67,7 @@ const Dashboard = () => {
   }, [selectedDate]);
 
   useEffect(() => {
-    fetchTodayAttendance();
+    fetchAttendance();
 
     const channel = supabase
       .channel("attendance-changes")
