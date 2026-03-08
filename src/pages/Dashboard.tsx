@@ -147,6 +147,23 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Subject-wise Stats */}
+        {subjectStats.length > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-display font-semibold">Subject Attendance</h2>
+              <Link to="/class-attendance">
+                <Button variant="link" size="sm">View Details →</Button>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {subjectStats.map((s) => (
+                <SubjectStats key={s.subject} {...s} />
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Today's Attendance */}
         <div>
           <h2 className="text-xl font-display font-semibold mb-4">Today's Attendance</h2>
