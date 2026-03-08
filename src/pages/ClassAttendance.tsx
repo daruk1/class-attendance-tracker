@@ -7,8 +7,8 @@ import { ArrowLeft, Users, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { toast } from "sonner";
 
 // Class schedule: day (0=Sun, 6=Sat), start/end/cutoff times
-const CLASS_SCHEDULES: Record<string, { day: number; start: string; end: string; cutoff: string }> = {
-  "11-English": { day: 6, start: "07:30", end: "09:30", cutoff: "08:00" },
+const CLASS_SCHEDULES: Record<string, { day: number; start: string; end: string; cutoff: string; scanStart: string; scanEnd: string }> = {
+  "11-English": { day: 6, start: "07:00", end: "09:30", cutoff: "08:00", scanStart: "07:00", scanEnd: "07:59" },
 };
 
 const SUBJECTS = ["English", "Science", "ICT"];
@@ -179,8 +179,9 @@ const ClassAttendance = () => {
             <div>
               <p className="font-medium text-sm">Today's Classes</p>
               {activeSchedules.map((s) => (
-                <p key={`${s.grade}-${s.subject}`} className="text-sm text-muted-foreground">
+              <p key={`${s.grade}-${s.subject}`} className="text-sm text-muted-foreground">
                   Grade {s.grade} {s.subject}: {s.start} AM – {s.end} AM
+                  <span className="ml-2 text-xs text-success">(Scan: {s.scanStart} – {s.scanEnd} AM)</span>
                   <span className="ml-2 text-xs text-destructive">(Auto-absent after {s.cutoff} AM)</span>
                 </p>
               ))}

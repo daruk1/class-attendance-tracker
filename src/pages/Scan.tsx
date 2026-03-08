@@ -7,6 +7,11 @@ import { ArrowLeft, CheckCircle2, ScanLine, XCircle, Upload } from "lucide-react
 import { toast } from "sonner";
 import { Html5Qrcode } from "html5-qrcode";
 
+// Class scan windows: only accept scans during these times
+const CLASS_SCAN_WINDOWS: Record<string, { day: number; scanStart: string; scanEnd: string }> = {
+  "11-English": { day: 6, scanStart: "07:00", scanEnd: "07:59" },
+};
+
 interface ScanResult {
   name: string;
   studentId: string;
@@ -97,8 +102,29 @@ const Scan = () => {
       return;
     }
 
+    // Check if scan is within allowed time window for the student's class
+    const now = new Date();
+    const currentDay = now.getDay();
+    const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+    const classKey = `${student.grade}-${student.subject}`;
+    const scanWindow = CLASS_SCAN_WINDOWS[classKey];
+
+    if (scanWindow && currentDay === scanWindow.day) {
+      if (currentTime < scanWindow.scanStart || currentTime > scanWindow.scanEnd) {
+        setLastResult({
+          name: student.name,
+          studentId: student.student_id,
+          className: student.class_name,
+          status: "error",
+          message: `Scanning only allowed ${scanWindow.scanStart} – ${scanWindow.scanEnd} AM for Grade ${student.grade} ${student.subject}. Current time: ${currentTime}.`,
+        });
+        toast.error(`Outside scan window for ${student.subject} class`);
+        return;
+      }
+    }
+
     // Try to insert attendance
-    const today = new Date().toISOString().split("T")[0];
+    const today = now.toISOString().split("T")[0];
     const { error: insertError } = await supabase.from("attendance_records").insert({
       student_id: student.id,
       date: today,
