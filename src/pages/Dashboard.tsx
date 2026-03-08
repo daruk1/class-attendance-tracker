@@ -79,12 +79,8 @@ const Dashboard = () => {
     return () => { supabase.removeChannel(channel); };
   }, [fetchAttendance]);
 
-  const today = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const displayDate = format(selectedDate, "EEEE, MMMM d, yyyy");
+  const isToday = format(selectedDate, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
 
   return (
     <div className="min-h-screen bg-background">
