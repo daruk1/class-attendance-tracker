@@ -17,8 +17,10 @@ interface ScanResult {
 const Scan = () => {
   const [scanning, setScanning] = useState(false);
   const [lastResult, setLastResult] = useState<ScanResult | null>(null);
+  const [uploading, setUploading] = useState(false);
   const lastScannedRef = useRef<string>("");
   const cooldownRef = useRef(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleScan = useCallback(async (qrCode: string) => {
     // Prevent duplicate scans
