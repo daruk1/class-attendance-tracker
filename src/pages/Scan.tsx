@@ -101,6 +101,7 @@ const Scan = () => {
       setLastResult({
         name: "Unknown",
         studentId: "",
+        className: "",
         status: "error",
         message: "No QR code found in the uploaded image.",
       });
