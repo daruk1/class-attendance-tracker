@@ -90,7 +90,7 @@ const Dashboard = () => {
             <img src={nenasaLogo} alt="Nenasa Logo" className="h-12 w-auto rounded" />
             <div>
               <h1 className="text-2xl font-display font-bold text-foreground">Nenasa Education Database</h1>
-              <p className="text-sm text-muted-foreground">{today}</p>
+              <p className="text-sm text-muted-foreground">{displayDate}</p>
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">
