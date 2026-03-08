@@ -126,6 +126,10 @@ const Dashboard = () => {
           <AttendanceTable records={records} />
         </div>
       </main>
+
+      <footer className="border-t bg-card py-4 text-center">
+        <p className="text-sm text-muted-foreground">Developed by <span className="font-semibold text-foreground">Daruka</span></p>
+      </footer>
     </div>
   );
 };
