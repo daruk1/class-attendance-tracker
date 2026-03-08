@@ -17,8 +17,8 @@ const Dashboard = () => {
   const [subjectStats, setSubjectStats] = useState<{ subject: string; total: number; present: number; absent: number }[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-  const fetchTodayAttendance = useCallback(async () => {
-    const today = new Date().toISOString().split("T")[0];
+  const fetchAttendance = useCallback(async () => {
+    const dateStr = format(selectedDate, "yyyy-MM-dd");
 
     const { data: attendanceData } = await supabase
       .from("attendance_records")
