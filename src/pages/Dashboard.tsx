@@ -15,6 +15,7 @@ const Dashboard = () => {
   const [records, setRecords] = useState<any[]>([]);
   const [stats, setStats] = useState({ total: 0, present: 0, absent: 0 });
   const [subjectStats, setSubjectStats] = useState<{ subject: string; total: number; present: number; absent: number }[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const fetchTodayAttendance = useCallback(async () => {
     const today = new Date().toISOString().split("T")[0];
