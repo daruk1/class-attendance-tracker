@@ -10,6 +10,7 @@ import { toast } from "sonner";
 
 const SUBJECTS = ["English", "Science", "ICT"] as const;
 const GRADES = [6, 7, 8, 9, 10, 11] as const;
+const MONTHLY_FEE = 1200;
 
 interface AddStudentDialogProps {
   onStudentAdded: () => void;
