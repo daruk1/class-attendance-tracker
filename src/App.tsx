@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Students from "./pages/Students";
 import Scan from "./pages/Scan";
 import ClassAttendance from "./pages/ClassAttendance";
+import Payments from "./pages/Payments";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/students" element={<Students />} />
           <Route path="/scan" element={<Scan />} />
           <Route path="/class-attendance" element={<ClassAttendance />} />
+          <Route path="/payments" element={<Payments />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

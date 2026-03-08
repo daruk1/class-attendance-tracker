@@ -46,10 +46,49 @@ export type Database = {
           },
         ]
       }
+      monthly_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          month_year: string
+          paid: boolean
+          paid_at: string | null
+          student_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          month_year: string
+          paid?: boolean
+          paid_at?: string | null
+          student_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          month_year?: string
+          paid?: boolean
+          paid_at?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_payments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       students: {
         Row: {
           class_name: string
           created_at: string
+          email: string | null
           grade: number | null
           id: string
           name: string
@@ -60,6 +99,7 @@ export type Database = {
         Insert: {
           class_name: string
           created_at?: string
+          email?: string | null
           grade?: number | null
           id?: string
           name: string
@@ -70,6 +110,7 @@ export type Database = {
         Update: {
           class_name?: string
           created_at?: string
+          email?: string | null
           grade?: number | null
           id?: string
           name?: string

@@ -10,6 +10,7 @@ import { toast } from "sonner";
 
 const SUBJECTS = ["English", "Science", "ICT"] as const;
 const GRADES = [6, 7, 8, 9, 10, 11] as const;
+const MONTHLY_FEE = 1200;
 
 interface AddStudentDialogProps {
   onStudentAdded: () => void;
@@ -19,6 +20,7 @@ const AddStudentDialog = ({ onStudentAdded }: AddStudentDialogProps) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [studentId, setStudentId] = useState("");
+  const [email, setEmail] = useState("");
   const [grade, setGrade] = useState("");
   const [subject, setSubject] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,21 +36,35 @@ const AddStudentDialog = ({ onStudentAdded }: AddStudentDialogProps) => {
     const className = `Grade ${grade} - ${subject}`;
     const qrCode = `STU-${studentId}-${Date.now()}`;
 
-    const { error } = await supabase.from("students").insert({
+    const currentMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
+    const monthlyQrCode = `STU-${studentId.trim()}-${currentMonth}-${Date.now()}`;
+
+    const { data: newStudent, error } = await supabase.from("students").insert({
       name: name.trim(),
       student_id: studentId.trim(),
+      email: email.trim() || null,
       class_name: className,
       grade: parseInt(grade),
       subject,
-      qr_code: qrCode,
-    } as any);
+      qr_code: monthlyQrCode,
+    } as any).select().single();
 
     if (error) {
       toast.error(error.message.includes("duplicate") ? "Student ID already exists" : "Failed to add student");
     } else {
+      // Create initial payment record for current month
+      if (newStudent) {
+        await supabase.from("monthly_payments").insert({
+          student_id: newStudent.id,
+          month_year: currentMonth,
+          amount: MONTHLY_FEE,
+          paid: false,
+        } as any);
+      }
       toast.success(`${name} added to Grade ${grade} - ${subject}!`);
       setName("");
       setStudentId("");
+      setEmail("");
       setGrade("");
       setSubject("");
       setOpen(false);
@@ -77,6 +93,10 @@ const AddStudentDialog = ({ onStudentAdded }: AddStudentDialogProps) => {
           <div className="space-y-2">
             <Label htmlFor="studentId">Student ID</Label>
             <Input id="studentId" value={studentId} onChange={(e) => setStudentId(e.target.value)} placeholder="STU001" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email (for payment reminders)</Label>
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="student@example.com" />
           </div>
           <div className="space-y-2">
             <Label>Grade</Label>

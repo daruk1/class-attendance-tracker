@@ -43,9 +43,31 @@ const Scan = () => {
         studentId: "",
         className: "",
         status: "error",
-        message: "Student not found. Invalid QR code.",
+        message: "Student not found or QR code expired. Please check payment status.",
       });
-      toast.error("Invalid QR code");
+      toast.error("Invalid or expired QR code");
+      return;
+    }
+
+    // Check if student has paid for current month
+    const currentMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
+    const { data: payment } = await supabase
+      .from("monthly_payments")
+      .select("*")
+      .eq("student_id", student.id)
+      .eq("month_year", currentMonth)
+      .eq("paid", true)
+      .maybeSingle();
+
+    if (!payment) {
+      setLastResult({
+        name: student.name,
+        studentId: student.student_id,
+        className: student.class_name,
+        status: "error",
+        message: `Payment required! LKR 1,200 unpaid for ${currentMonth}. QR blocked.`,
+      });
+      toast.error(`${student.name} has not paid for this month`);
       return;
     }
 
