@@ -199,7 +199,7 @@ const Dashboard = () => {
 
         {/* Attendance for selected date */}
         <div>
-          <h2 className="text-xl font-display font-semibold mb-4">Today's Attendance</h2>
+          <h2 className="text-xl font-display font-semibold mb-4">{isToday ? "Today's" : format(selectedDate, "MMM d")} Attendance</h2>
           <AttendanceTable records={records} />
         </div>
       </main>
