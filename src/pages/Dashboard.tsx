@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import AttendanceTable from "@/components/AttendanceTable";
 import SubjectStats from "@/components/SubjectStats";
-import { ScanLine, Users, CheckCircle2, XCircle, BookOpen } from "lucide-react";
+import { ScanLine, Users, CheckCircle2, XCircle, BookOpen, CreditCard } from "lucide-react";
 import nenasaLogo from "@/assets/nenasa-logo.jpeg";
 
 const Dashboard = () => {
