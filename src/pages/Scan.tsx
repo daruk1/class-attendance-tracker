@@ -87,7 +87,8 @@ const Scan = () => {
     if (!file) return;
     setUploading(true);
     try {
-      const result = await Html5Qrcode.scanFile(file, true);
+      const html5QrCode = new Html5Qrcode("qr-file-reader");
+      const result = await html5QrCode.scanFile(file, false);
       lastScannedRef.current = "";
       cooldownRef.current = false;
       await handleScan(result);
