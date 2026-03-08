@@ -3,7 +3,13 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Users, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, Users, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { toast } from "sonner";
+
+// Class schedule: day (0=Sun, 6=Sat), start/end/cutoff times
+const CLASS_SCHEDULES: Record<string, { day: number; start: string; end: string; cutoff: string }> = {
+  "11-English": { day: 6, start: "07:30", end: "09:30", cutoff: "08:00" },
+};
 
 const SUBJECTS = ["English", "Science", "ICT"];
 const GRADES = [6, 7, 8, 9, 10, 11];
@@ -20,6 +26,60 @@ const ClassAttendance = () => {
   const [classStats, setClassStats] = useState<ClassStat[]>([]);
   const [filterSubject, setFilterSubject] = useState<string>("all");
   const [filterGrade, setFilterGrade] = useState<string>("all");
+  const [autoAbsentRan, setAutoAbsentRan] = useState(false);
+
+  const markAbsentAutomatically = useCallback(async () => {
+    const now = new Date();
+    const today = now.toISOString().split("T")[0];
+    const currentDay = now.getDay(); // 0=Sun, 6=Sat
+    const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+    for (const [key, schedule] of Object.entries(CLASS_SCHEDULES)) {
+      const [gradeStr, subject] = key.split("-");
+      const grade = parseInt(gradeStr);
+
+      // Only run on the correct day and after cutoff time
+      if (currentDay !== schedule.day || currentTime < schedule.cutoff) continue;
+
+      // Get all students in this class
+      const { data: students } = await supabase
+        .from("students")
+        .select("id")
+        .eq("grade", grade)
+        .eq("subject", subject);
+
+      if (!students || students.length === 0) continue;
+
+      // Get already-scanned students for today
+      const { data: attendance } = await supabase
+        .from("attendance_records")
+        .select("student_id")
+        .eq("date", today)
+        .in("student_id", students.map((s) => s.id));
+
+      const scannedSet = new Set((attendance || []).map((a) => a.student_id));
+
+      // Insert absent records for unscanned students (upsert to avoid duplicates)
+      const absentRecords = students
+        .filter((s) => !scannedSet.has(s.id))
+        .map((s) => ({
+          student_id: s.id,
+          date: today,
+          status: "absent",
+        }));
+
+      if (absentRecords.length > 0) {
+        const { error } = await supabase
+          .from("attendance_records")
+          .upsert(absentRecords, { onConflict: "student_id,date" });
+
+        if (!error) {
+          toast.info(`Auto-marked ${absentRecords.length} Grade ${grade} ${subject} student(s) as absent (after ${schedule.cutoff})`);
+        }
+      }
+    }
+    setAutoAbsentRan(true);
+  }, []);
 
   const fetchClassStats = useCallback(async () => {
     const today = new Date().toISOString().split("T")[0];
@@ -38,6 +98,9 @@ const ClassAttendance = () => {
     const presentSet = new Set(
       (attendance || []).filter((a: any) => a.status === "present").map((a: any) => a.student_id)
     );
+    const absentSet = new Set(
+      (attendance || []).filter((a: any) => a.status === "absent").map((a: any) => a.student_id)
+    );
 
     const statsMap = new Map<string, ClassStat>();
 
@@ -51,7 +114,7 @@ const ClassAttendance = () => {
       stat.total++;
       if (presentSet.has(s.id)) {
         stat.present++;
-      } else {
+      } else if (absentSet.has(s.id)) {
         stat.absent++;
       }
     });
@@ -63,13 +126,15 @@ const ClassAttendance = () => {
   }, []);
 
   useEffect(() => {
-    fetchClassStats();
+    // Run auto-absent marking first, then fetch stats
+    markAbsentAutomatically().then(() => fetchClassStats());
+
     const channel = supabase
       .channel("class-attendance-changes")
       .on("postgres_changes", { event: "*", schema: "public", table: "attendance_records" }, () => fetchClassStats())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [fetchClassStats]);
+  }, [fetchClassStats, markAbsentAutomatically]);
 
   const filtered = classStats.filter((s) => {
     if (filterSubject !== "all" && s.subject !== filterSubject) return false;
@@ -77,9 +142,18 @@ const ClassAttendance = () => {
     return true;
   });
 
-  const today = new Date().toLocaleDateString("en-US", {
+  const today = new Date();
+  const todayStr = today.toLocaleDateString("en-US", {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
   });
+
+  // Show schedule info for active classes today
+  const activeSchedules = Object.entries(CLASS_SCHEDULES)
+    .filter(([, s]) => s.day === today.getDay())
+    .map(([key, s]) => {
+      const [grade, subject] = key.split("-");
+      return { grade, subject, ...s };
+    });
 
   return (
     <div className="min-h-screen bg-background">
@@ -92,12 +166,28 @@ const ClassAttendance = () => {
           </Link>
           <div>
             <h1 className="text-2xl font-display font-bold">Class Attendance</h1>
-            <p className="text-sm text-muted-foreground">{today}</p>
+            <p className="text-sm text-muted-foreground">{todayStr}</p>
           </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8 space-y-6">
+        {/* Today's schedule */}
+        {activeSchedules.length > 0 && (
+          <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex items-start gap-3">
+            <Clock className="h-5 w-5 text-primary mt-0.5" />
+            <div>
+              <p className="font-medium text-sm">Today's Classes</p>
+              {activeSchedules.map((s) => (
+                <p key={`${s.grade}-${s.subject}`} className="text-sm text-muted-foreground">
+                  Grade {s.grade} {s.subject}: {s.start} AM – {s.end} AM
+                  <span className="ml-2 text-xs text-destructive">(Auto-absent after {s.cutoff} AM)</span>
+                </p>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Filters */}
         <div className="flex flex-wrap gap-3">
           <Select value={filterSubject} onValueChange={setFilterSubject}>
