@@ -197,7 +197,7 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Today's Attendance */}
+        {/* Attendance for selected date */}
         <div>
           <h2 className="text-xl font-display font-semibold mb-4">Today's Attendance</h2>
           <AttendanceTable records={records} />
