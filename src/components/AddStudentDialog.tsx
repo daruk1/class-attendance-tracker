@@ -20,6 +20,7 @@ const AddStudentDialog = ({ onStudentAdded }: AddStudentDialogProps) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [studentId, setStudentId] = useState("");
+  const [email, setEmail] = useState("");
   const [grade, setGrade] = useState("");
   const [subject, setSubject] = useState("");
   const [loading, setLoading] = useState(false);
