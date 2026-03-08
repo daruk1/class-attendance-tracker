@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import QrScanner from "@/components/QrScanner";
-import { ArrowLeft, CheckCircle2, ScanLine, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ScanLine, XCircle, Upload } from "lucide-react";
 import { toast } from "sonner";
+import { Html5Qrcode } from "html5-qrcode";
 
 interface ScanResult {
   name: string;
@@ -16,8 +17,10 @@ interface ScanResult {
 const Scan = () => {
   const [scanning, setScanning] = useState(false);
   const [lastResult, setLastResult] = useState<ScanResult | null>(null);
+  const [uploading, setUploading] = useState(false);
   const lastScannedRef = useRef<string>("");
   const cooldownRef = useRef(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleScan = useCallback(async (qrCode: string) => {
     // Prevent duplicate scans
@@ -79,8 +82,32 @@ const Scan = () => {
     }
   }, []);
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const html5QrCode = new Html5Qrcode("qr-file-reader");
+      const result = await html5QrCode.scanFile(file, false);
+      lastScannedRef.current = "";
+      cooldownRef.current = false;
+      await handleScan(result);
+    } catch {
+      setLastResult({
+        name: "Unknown",
+        studentId: "",
+        status: "error",
+        message: "No QR code found in the uploaded image.",
+      });
+      toast.error("No QR code found in the image");
+    }
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <div id="qr-file-reader" className="hidden" />
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center gap-3">
           <Link to="/">
@@ -100,14 +127,33 @@ const Scan = () => {
         </div>
 
         {!scanning ? (
-          <div className="flex flex-col items-center gap-4 py-12">
+          <div className="flex flex-col items-center gap-6 py-12">
             <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center">
               <ScanLine className="h-12 w-12 text-primary" />
             </div>
-            <Button size="lg" onClick={() => setScanning(true)} className="gap-2">
-              <ScanLine className="h-5 w-5" />
-              Start Scanning
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
+              <Button size="lg" onClick={() => setScanning(true)} className="gap-2 flex-1">
+                <ScanLine className="h-5 w-5" />
+                Live Camera Scan
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="gap-2 flex-1"
+              >
+                <Upload className="h-5 w-5" />
+                {uploading ? "Processing..." : "Upload QR Image"}
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
