@@ -50,26 +50,32 @@ export type Database = {
         Row: {
           class_name: string
           created_at: string
+          grade: number | null
           id: string
           name: string
           qr_code: string
           student_id: string
+          subject: string | null
         }
         Insert: {
           class_name: string
           created_at?: string
+          grade?: number | null
           id?: string
           name: string
           qr_code: string
           student_id: string
+          subject?: string | null
         }
         Update: {
           class_name?: string
           created_at?: string
+          grade?: number | null
           id?: string
           name?: string
           qr_code?: string
           student_id?: string
+          subject?: string | null
         }
         Relationships: []
       }
