@@ -92,7 +92,13 @@ const Dashboard = () => {
               <p className="text-sm text-muted-foreground">{today}</p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <Link to="/class-attendance">
+              <Button variant="outline" className="gap-2">
+                <BookOpen className="h-4 w-4" />
+                Classes
+              </Button>
+            </Link>
             <Link to="/students">
               <Button variant="outline" className="gap-2">
                 <Users className="h-4 w-4" />
