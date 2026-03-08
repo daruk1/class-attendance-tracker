@@ -64,7 +64,7 @@ const Dashboard = () => {
     setSubjectStats(
       Array.from(subjectMap.entries()).map(([subject, data]) => ({ subject, ...data }))
     );
-  }, []);
+  }, [selectedDate]);
 
   useEffect(() => {
     fetchTodayAttendance();
