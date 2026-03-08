@@ -107,6 +107,7 @@ const Scan = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <div id="qr-file-reader" className="hidden" />
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center gap-3">
           <Link to="/">
