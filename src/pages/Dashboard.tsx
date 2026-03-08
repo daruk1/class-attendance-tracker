@@ -1,24 +1,29 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
+import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import AttendanceTable from "@/components/AttendanceTable";
 import SubjectStats from "@/components/SubjectStats";
-import { ScanLine, Users, CheckCircle2, XCircle, BookOpen, CreditCard } from "lucide-react";
+import { ScanLine, Users, CheckCircle2, XCircle, BookOpen, CreditCard, CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import nenasaLogo from "@/assets/nenasa-logo.jpeg";
 
 const Dashboard = () => {
   const [records, setRecords] = useState<any[]>([]);
   const [stats, setStats] = useState({ total: 0, present: 0, absent: 0 });
   const [subjectStats, setSubjectStats] = useState<{ subject: string; total: number; present: number; absent: number }[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-  const fetchTodayAttendance = useCallback(async () => {
-    const today = new Date().toISOString().split("T")[0];
+  const fetchAttendance = useCallback(async () => {
+    const dateStr = format(selectedDate, "yyyy-MM-dd");
 
     const { data: attendanceData } = await supabase
       .from("attendance_records")
       .select("*, students(name, student_id, class_name)")
-      .eq("date", today)
+      .eq("date", dateStr)
       .order("scanned_at", { ascending: false });
 
     const { data: allStudents } = await supabase
@@ -59,27 +64,23 @@ const Dashboard = () => {
     setSubjectStats(
       Array.from(subjectMap.entries()).map(([subject, data]) => ({ subject, ...data }))
     );
-  }, []);
+  }, [selectedDate]);
 
   useEffect(() => {
-    fetchTodayAttendance();
+    fetchAttendance();
 
     const channel = supabase
       .channel("attendance-changes")
       .on("postgres_changes", { event: "*", schema: "public", table: "attendance_records" }, () => {
-        fetchTodayAttendance();
+        fetchAttendance();
       })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [fetchTodayAttendance]);
+  }, [fetchAttendance]);
 
-  const today = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const displayDate = format(selectedDate, "EEEE, MMMM d, yyyy");
+  const isToday = format(selectedDate, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
 
   return (
     <div className="min-h-screen bg-background">
@@ -89,7 +90,7 @@ const Dashboard = () => {
             <img src={nenasaLogo} alt="Nenasa Logo" className="h-12 w-auto rounded" />
             <div>
               <h1 className="text-2xl font-display font-bold text-foreground">Nenasa Education Database</h1>
-              <p className="text-sm text-muted-foreground">{today}</p>
+              <p className="text-sm text-muted-foreground">{displayDate}</p>
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -122,6 +123,32 @@ const Dashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8 space-y-8">
+        {/* Date Picker */}
+        <div className="flex items-center gap-3">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className={cn("gap-2 justify-start text-left font-normal", !isToday && "border-primary text-primary")}>
+                <CalendarIcon className="h-4 w-4" />
+                {isToday ? "Today" : format(selectedDate, "PPP")}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={(d) => d && setSelectedDate(d)}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
+          {!isToday && (
+            <Button variant="ghost" size="sm" onClick={() => setSelectedDate(new Date())}>
+              Back to Today
+            </Button>
+          )}
+        </div>
+
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-card border rounded-lg p-6 flex items-center gap-4">
@@ -170,9 +197,9 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Today's Attendance */}
+        {/* Attendance for selected date */}
         <div>
-          <h2 className="text-xl font-display font-semibold mb-4">Today's Attendance</h2>
+          <h2 className="text-xl font-display font-semibold mb-4">{isToday ? "Today's" : format(selectedDate, "MMM d")} Attendance</h2>
           <AttendanceTable records={records} />
         </div>
       </main>
