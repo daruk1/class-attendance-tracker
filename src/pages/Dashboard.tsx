@@ -10,6 +10,7 @@ import nenasaLogo from "@/assets/nenasa-logo.jpeg";
 const Dashboard = () => {
   const [records, setRecords] = useState<any[]>([]);
   const [stats, setStats] = useState({ total: 0, present: 0, absent: 0 });
+  const [subjectStats, setSubjectStats] = useState<{ subject: string; total: number; present: number; absent: number }[]>([]);
 
   const fetchTodayAttendance = useCallback(async () => {
     const today = new Date().toISOString().split("T")[0];
@@ -20,9 +21,11 @@ const Dashboard = () => {
       .eq("date", today)
       .order("scanned_at", { ascending: false });
 
-    const { count: totalStudents } = await supabase
+    const { data: allStudents } = await supabase
       .from("students")
-      .select("*", { count: "exact", head: true });
+      .select("id, subject");
+
+    const totalStudents = allStudents?.length || 0;
 
     const formatted = (attendanceData || []).map((r: any) => ({
       student_name: r.students?.name || "Unknown",
@@ -35,10 +38,27 @@ const Dashboard = () => {
     const presentCount = formatted.filter((r) => r.status === "present").length;
     setRecords(formatted);
     setStats({
-      total: totalStudents || 0,
+      total: totalStudents,
       present: presentCount,
-      absent: (totalStudents || 0) - presentCount,
+      absent: totalStudents - presentCount,
     });
+
+    // Calculate per-subject stats
+    const presentStudentIds = new Set(
+      (attendanceData || []).filter((a: any) => a.status === "present").map((a: any) => a.student_id)
+    );
+    const subjectMap = new Map<string, { total: number; present: number; absent: number }>();
+    (allStudents || []).forEach((s: any) => {
+      if (!s.subject) return;
+      if (!subjectMap.has(s.subject)) subjectMap.set(s.subject, { total: 0, present: 0, absent: 0 });
+      const stat = subjectMap.get(s.subject)!;
+      stat.total++;
+      if (presentStudentIds.has(s.id)) stat.present++;
+      else stat.absent++;
+    });
+    setSubjectStats(
+      Array.from(subjectMap.entries()).map(([subject, data]) => ({ subject, ...data }))
+    );
   }, []);
 
   useEffect(() => {
