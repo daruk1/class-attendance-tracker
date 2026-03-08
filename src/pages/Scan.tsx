@@ -198,6 +198,9 @@ const Scan = () => {
             {lastResult.studentId && (
               <p className="text-sm text-muted-foreground">ID: {lastResult.studentId}</p>
             )}
+            {lastResult.className && (
+              <p className="text-sm text-muted-foreground font-medium">Class: {lastResult.className}</p>
+            )}
             <p className="text-sm font-medium">{lastResult.message}</p>
           </div>
         )}
