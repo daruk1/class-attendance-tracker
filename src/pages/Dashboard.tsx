@@ -23,7 +23,7 @@ const Dashboard = () => {
     const { data: attendanceData } = await supabase
       .from("attendance_records")
       .select("*, students(name, student_id, class_name)")
-      .eq("date", today)
+      .eq("date", dateStr)
       .order("scanned_at", { ascending: false });
 
     const { data: allStudents } = await supabase
