@@ -7,6 +7,11 @@ import { ArrowLeft, CheckCircle2, ScanLine, XCircle, Upload } from "lucide-react
 import { toast } from "sonner";
 import { Html5Qrcode } from "html5-qrcode";
 
+// Class scan windows: only accept scans during these times
+const CLASS_SCAN_WINDOWS: Record<string, { day: number; scanStart: string; scanEnd: string }> = {
+  "11-English": { day: 6, scanStart: "07:00", scanEnd: "07:59" },
+};
+
 interface ScanResult {
   name: string;
   studentId: string;

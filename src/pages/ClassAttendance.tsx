@@ -179,8 +179,9 @@ const ClassAttendance = () => {
             <div>
               <p className="font-medium text-sm">Today's Classes</p>
               {activeSchedules.map((s) => (
-                <p key={`${s.grade}-${s.subject}`} className="text-sm text-muted-foreground">
+              <p key={`${s.grade}-${s.subject}`} className="text-sm text-muted-foreground">
                   Grade {s.grade} {s.subject}: {s.start} AM – {s.end} AM
+                  <span className="ml-2 text-xs text-success">(Scan: {s.scanStart} – {s.scanEnd} AM)</span>
                   <span className="ml-2 text-xs text-destructive">(Auto-absent after {s.cutoff} AM)</span>
                 </p>
               ))}
