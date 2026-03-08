@@ -77,7 +77,7 @@ const Dashboard = () => {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [fetchTodayAttendance]);
+  }, [fetchAttendance]);
 
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
