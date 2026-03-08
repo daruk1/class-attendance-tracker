@@ -41,16 +41,20 @@ const Dashboard = () => {
     }));
 
     const presentCount = formatted.filter((r) => r.status === "present").length;
+    const absentCount = formatted.filter((r) => r.status === "absent").length;
     setRecords(formatted);
     setStats({
       total: totalStudents,
       present: presentCount,
-      absent: totalStudents - presentCount,
+      absent: absentCount,
     });
 
     // Calculate per-subject stats
     const presentStudentIds = new Set(
       (attendanceData || []).filter((a: any) => a.status === "present").map((a: any) => a.student_id)
+    );
+    const absentStudentIds = new Set(
+      (attendanceData || []).filter((a: any) => a.status === "absent").map((a: any) => a.student_id)
     );
     const subjectMap = new Map<string, { total: number; present: number; absent: number }>();
     (allStudents || []).forEach((s: any) => {
@@ -59,7 +63,7 @@ const Dashboard = () => {
       const stat = subjectMap.get(s.subject)!;
       stat.total++;
       if (presentStudentIds.has(s.id)) stat.present++;
-      else stat.absent++;
+      else if (absentStudentIds.has(s.id)) stat.absent++;
     });
     setSubjectStats(
       Array.from(subjectMap.entries()).map(([subject, data]) => ({ subject, ...data }))
