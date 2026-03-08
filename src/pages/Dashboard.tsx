@@ -72,7 +72,7 @@ const Dashboard = () => {
     const channel = supabase
       .channel("attendance-changes")
       .on("postgres_changes", { event: "*", schema: "public", table: "attendance_records" }, () => {
-        fetchTodayAttendance();
+        fetchAttendance();
       })
       .subscribe();
 
