@@ -52,9 +52,19 @@ const AddStudentDialog = ({ onStudentAdded }: AddStudentDialogProps) => {
     if (error) {
       toast.error(error.message.includes("duplicate") ? "Student ID already exists" : "Failed to add student");
     } else {
+      // Create initial payment record for current month
+      if (newStudent) {
+        await supabase.from("monthly_payments").insert({
+          student_id: newStudent.id,
+          month_year: currentMonth,
+          amount: MONTHLY_FEE,
+          paid: false,
+        } as any);
+      }
       toast.success(`${name} added to Grade ${grade} - ${subject}!`);
       setName("");
       setStudentId("");
+      setEmail("");
       setGrade("");
       setSubject("");
       setOpen(false);
