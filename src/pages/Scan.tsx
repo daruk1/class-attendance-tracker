@@ -10,6 +10,7 @@ import { Html5Qrcode } from "html5-qrcode";
 interface ScanResult {
   name: string;
   studentId: string;
+  className: string;
   status: "success" | "error" | "duplicate";
   message: string;
 }
