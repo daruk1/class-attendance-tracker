@@ -10,6 +10,7 @@ import { Html5Qrcode } from "html5-qrcode";
 interface ScanResult {
   name: string;
   studentId: string;
+  className: string;
   status: "success" | "error" | "duplicate";
   message: string;
 }
@@ -40,6 +41,7 @@ const Scan = () => {
       setLastResult({
         name: "Unknown",
         studentId: "",
+        className: "",
         status: "error",
         message: "Student not found. Invalid QR code.",
       });
@@ -59,6 +61,7 @@ const Scan = () => {
       setLastResult({
         name: student.name,
         studentId: student.student_id,
+        className: student.class_name,
         status: "duplicate",
         message: "Already marked present today",
       });
@@ -67,6 +70,7 @@ const Scan = () => {
       setLastResult({
         name: student.name,
         studentId: student.student_id,
+        className: student.class_name,
         status: "error",
         message: "Failed to record attendance",
       });
@@ -75,6 +79,7 @@ const Scan = () => {
       setLastResult({
         name: student.name,
         studentId: student.student_id,
+        className: student.class_name,
         status: "success",
         message: "Attendance recorded! ✓",
       });
@@ -96,6 +101,7 @@ const Scan = () => {
       setLastResult({
         name: "Unknown",
         studentId: "",
+        className: "",
         status: "error",
         message: "No QR code found in the uploaded image.",
       });
@@ -192,6 +198,9 @@ const Scan = () => {
             <p className="font-display font-bold text-lg">{lastResult.name}</p>
             {lastResult.studentId && (
               <p className="text-sm text-muted-foreground">ID: {lastResult.studentId}</p>
+            )}
+            {lastResult.className && (
+              <p className="text-sm text-muted-foreground font-medium">Class: {lastResult.className}</p>
             )}
             <p className="text-sm font-medium">{lastResult.message}</p>
           </div>
