@@ -95,6 +95,10 @@ const AddStudentDialog = ({ onStudentAdded }: AddStudentDialogProps) => {
             <Input id="studentId" value={studentId} onChange={(e) => setStudentId(e.target.value)} placeholder="STU001" />
           </div>
           <div className="space-y-2">
+            <Label htmlFor="email">Email (for payment reminders)</Label>
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="student@example.com" />
+          </div>
+          <div className="space-y-2">
             <Label>Grade</Label>
             <Select value={grade} onValueChange={setGrade}>
               <SelectTrigger>
