@@ -41,11 +41,12 @@ const Dashboard = () => {
     }));
 
     const presentCount = formatted.filter((r) => r.status === "present").length;
+    const absentCount = formatted.filter((r) => r.status === "absent").length;
     setRecords(formatted);
     setStats({
       total: totalStudents,
       present: presentCount,
-      absent: totalStudents - presentCount,
+      absent: absentCount,
     });
 
     // Calculate per-subject stats
