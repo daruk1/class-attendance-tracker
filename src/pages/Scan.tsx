@@ -30,12 +30,38 @@ const Scan = () => {
     lastScannedRef.current = qrCode;
     setTimeout(() => { cooldownRef.current = false; }, 2000);
 
-    // Find student by QR code
-    const { data: student, error: findError } = await supabase
+    // Find student by QR code - try direct match first, then parse JSON QR
+    let student: any = null;
+    let findError: any = null;
+
+    // Try direct qr_code match
+    const { data: directMatch, error: directErr } = await supabase
       .from("students")
       .select("*")
       .eq("qr_code", qrCode)
       .maybeSingle();
+
+    if (directMatch) {
+      student = directMatch;
+    } else {
+      // Try parsing as JSON QR code (e.g. {"name":"...","id":"04b1a900",...})
+      try {
+        const parsed = JSON.parse(qrCode);
+        const lookupId = parsed.id || parsed.student_id;
+        if (lookupId) {
+          const { data: jsonMatch, error: jsonErr } = await supabase
+            .from("students")
+            .select("*")
+            .eq("student_id", lookupId)
+            .maybeSingle();
+          student = jsonMatch;
+          findError = jsonErr;
+        }
+      } catch {
+        // Not JSON, keep student as null
+        findError = directErr;
+      }
+    }
 
     if (findError || !student) {
       setLastResult({
