@@ -41,6 +41,7 @@ const Scan = () => {
       setLastResult({
         name: "Unknown",
         studentId: "",
+        className: "",
         status: "error",
         message: "Student not found. Invalid QR code.",
       });
