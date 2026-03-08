@@ -125,14 +125,33 @@ const Scan = () => {
         </div>
 
         {!scanning ? (
-          <div className="flex flex-col items-center gap-4 py-12">
+          <div className="flex flex-col items-center gap-6 py-12">
             <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center">
               <ScanLine className="h-12 w-12 text-primary" />
             </div>
-            <Button size="lg" onClick={() => setScanning(true)} className="gap-2">
-              <ScanLine className="h-5 w-5" />
-              Start Scanning
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
+              <Button size="lg" onClick={() => setScanning(true)} className="gap-2 flex-1">
+                <ScanLine className="h-5 w-5" />
+                Live Camera Scan
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="gap-2 flex-1"
+              >
+                <Upload className="h-5 w-5" />
+                {uploading ? "Processing..." : "Upload QR Image"}
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
